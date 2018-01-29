@@ -1,0 +1,240 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "WordTable.h"
+
+// Initializes a word table
+void wtable_init(WordTable * wtable)
+{
+	// Allocate and initialize space for the table
+	wtable->nWords = 0;
+	wtable->maxWords = 10;
+	wtable->wordArray = (WordInfo *) malloc(wtable->maxWords * sizeof(WordInfo));
+	for (int i = 0; i < wtable->maxWords; i++) {
+		llist_init(&wtable->wordArray[i].positions);
+	}
+}
+
+// Add word to the tableand position. Position is added to the corresponding linked list.
+void wtable_add(WordTable * wtable, char * word, int position)
+{
+	// Find first word if it exists
+	for (int i = 0; i < wtable->nWords; i++) {
+		if ( strcmp(wtable->wordArray[i].word, word)== 0 ) {
+			// Found word. Add position in the list of positions
+			llist_insert_last(&wtable->wordArray[i].positions, position);
+			return;
+		}
+	}
+
+	// Word not found.
+
+	if(wtable->nWords == wtable->maxWords){
+		wtable->maxWords*=2;
+		wtable->wordArray =(WordInfo*) realloc(wtable->wordArray, wtable->maxWords*sizeof(WordInfo));
+		//rdInfo * buffer = (WordInfo *) malloc(wtable->maxWords *sizeof(WordInfo));
+		/*
+		 * i i = 0;
+		for(;i<nWords; i++){
+			//take the value at nWords and store it as the last element in the new buffer.
+			buffer[i] = wtable->wordArray[i];
+		}
+		free(wtable->wordArray);
+		wtable->wordArray = buffer;
+		free(buffer);
+		*/
+	}
+	// Add new word and position
+	wtable->wordArray[wtable->nWords].word = strdup(word);
+	llist_insert_last(&wtable->wordArray[wtable->nWords].positions, position);
+	wtable->nWords++;
+}
+
+// Print contents of the table.
+void wtable_print(WordTable * wtable, FILE * fd)
+{
+	fprintf(fd, "------- WORD TABLE -------\n");
+
+	// Print words
+	for (int i = 0; i < wtable->nWords; i++) {
+		fprintf(fd, "%d: %s: ", i, wtable->wordArray[i].word);
+		llist_print( &wtable->wordArray[i].positions);
+	}
+}
+
+// Get positions where the word occurs
+LinkedList * wtable_getPositions(WordTable * wtable, char * word)
+{
+	int i;
+	int nWords = wtable->nWords;
+	for(i=0; i<nWords; i++){
+		if(strcmp(wtable->wordArray[i].word, word)==0){
+			// when word is found
+			return &wtable->wordArray[i].positions;
+		}
+	}
+	// Write your code here
+	return NULL;
+}
+
+//
+// Separates the string into words
+//
+
+#define MAXWORD 200
+char word[MAXWORD];
+int wordLength;
+int wordCount;
+int charCount;
+int wordPos=0;
+
+// It returns the next word from stdin.
+// If there are no more more words it returns NULL.
+// A word is a sequence of alphabetical characters.
+static char * nextword(FILE * fd) {
+	// Write your code here
+	if(fd == NULL){
+		exit(1);
+	}
+	int j;
+	for(j=0; j < MAXWORD; j++){
+		word[j]=0;
+	}
+	int i=0;
+	int INWORD=0;
+	char c;
+	while((c=fgetc(fd))!= EOF){
+		wordPos++;
+		if(c!=')'&&c!=';'&&c!='"'&&c!='\''&& c!=':'&&c!='.'&&c!=','&&c!='-' && c != ' ' && c!='\t' &&c!='\n'&&c!='\r'){
+			if((c>='A' && c<='Z')|| (c>='a' && c<='z')){
+				word[i]=c;
+				i++;
+			}
+		}else{
+			if(i>0){
+				return word;
+			}else{
+				continue;
+			}
+		}
+	}
+	if(i>0)
+		return word;
+	else
+        	return NULL;
+}
+
+// Conver string to lower case
+void toLower(char *s) {
+	// Write your code here
+	while(*s != '\0'){
+		if(*s>=65 && *s <=90){
+			*s = *s - 'A' + 'a';
+		}
+		s++;
+	}
+}
+
+
+// Read a file and obtain words and positions of the words and save them in table.
+int wtable_createFromFile(WordTable * wtable, char * fileName, int verbose)
+{
+	// Write your code here
+	FILE* file = fopen(fileName, "r");
+	if(file == NULL)
+		return 0;
+	int nWords = wtable->nWords;
+	char* word1;
+	int wordadded = 0;
+	int count=0;
+	while((word1=nextword(file))!= NULL){// while there is still a word in the file
+	//check if the word already exists
+	//if yes then store its location
+	//if no then create a new word info and store it in wordArray
+		int i;
+		toLower(word1);
+		wordadded=0;
+		int position = wordPos - strlen(word1)-1;
+		for(i=0; i < nWords; i++){
+			if(strcmp(word1, wtable->wordArray[i].word)==0){
+				//get file position and store it in the linked list
+				llist_add(&wtable->wordArray[i].positions, position);
+				wordadded=1;
+			}
+		}
+		if(!wordadded){
+			wtable_add(wtable, word1, position);
+		}
+
+		if(verbose){
+			printf("%d: word=%s, pos=%d\n", count++, word1,position);
+		}
+
+	
+	
+	}
+}
+
+// Sort table in alphabetical order.
+void wtable_sort(WordTable* wtable){
+	if(wtable==NULL){
+		return;
+	}
+	int flag=1;
+	while(flag){
+		int i=0;
+		flag=0;
+		for(i=0; i < wtable->nWords-1; i++){
+			int j;
+			for(j=i; j < wtable->nWords-1; j++){
+				if(strcmp(wtable->wordArray[j].word, wtable->wordArray[j+1].word)>0){
+					WordInfo  temp = wtable->wordArray[j];
+					wtable->wordArray[j] = wtable->wordArray[j+1];
+					wtable->wordArray[j+1] = temp;
+					flag=1;
+				}
+			}
+		}
+	} 
+}
+// Print all segments of text in fileName that contain word.
+// at most 200 character. Use fseek to position file pointer.
+// Type "man fseek" for more info. 
+int wtable_textSegments(WordTable * wtable, char * word, char * fileName)
+{
+	printf("===== Segments for word \"%s\" in book \"%s\" =====\n",word,fileName);
+	FILE* file = fopen(fileName,"r");
+	if(file== NULL){
+		return 0;
+	}
+	wtable_createFromFile(wtable, fileName, 0);
+	char c;
+	int i;
+	LinkedList list;
+	for(i=0; i< wtable->nWords; i++){
+		if(strcmp(wtable->wordArray[i].word, word)==0){
+			list = wtable->wordArray[i].positions;
+		}
+	}
+	ListNode* e = list.head;
+	while(e){
+		int value = e->value;
+		if(value < 8500){
+			printf("---------- pos=%d-----\n", value);
+			fseek(file, value, SEEK_SET);
+			int j;
+			char c;
+			printf("......");
+			for(j=200;((c=fgetc(file))!=EOF)&&j!=0; j--){
+				printf("%c",c);
+			}
+			printf("......");
+			printf("\n");
+		}
+		e = e->next;
+	}
+	
+}
+
