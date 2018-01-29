@@ -27,7 +27,7 @@
 " Start using a color scheme
 "mkdir ~/.vim; \
 "git clone https://github.com/tomasiser/vim-code-dark && \
-"mv vim-code-dark/* ~/.vim
+"mv vim-code-dark/* ~/.vim && rm -rf vim-code-dark
 
 " Activating colorscheme and syntax
 "" set term=xterm-256color
