@@ -85,6 +85,14 @@
 "" Plugin 'tpope/vim-fugitive'
 "" Plugin 'tomtom/tcomment_vim'
 
+" Code Snippets
+"" Plugin 'SirVer/ultisnips'
+"" Plugin 'honza/vim-snippets'
+
+" React snippets
+"" Plugin 'epilande/vim-es2015-snippets'
+"" Plugin 'epilande/vim-react-snippets'
+
 "" call vundle#end()
 
 "
@@ -114,3 +122,9 @@
 
 " fugitive
 "" set statusline+=%{fugitive#statusline()}
+
+" ultisnips
+"" let g:UltiSnipsExpandTrigger="<tab>"
+"" let g:UltiSnipsJumpForwardTrigger="<c-n>"
+"" let g:UltiSnipsJumpBackwardTrigger="<c-b>"
+"" let g:UltiSnipsEditSplit="vertical"
