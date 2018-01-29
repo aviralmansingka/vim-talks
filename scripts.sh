@@ -1,13 +1,13 @@
 function build-tags-py() {
-    find . -name "*.py" -print | xargs etags --append
+    find . -name "*.py" -print | xargs etags --append -o tags
 }
 
 function build-tags-js() {
-    find . -name "*.js" -print | xargs etags --append
+    find . -name "*.js" -print | xargs etags --append -o tags
 }
 
-function build-tags-cpp() {
-    find . -name "*.cpp" -print -or -name "*.h" -print | xargs etags --append
+function build-tags-c-cpp() {
+    find . -name "*.c" -print -or -name "*.cpp" -print -or -name "*.h" -print | xargs etags --append -o tags
 }
 
 function mc() {
