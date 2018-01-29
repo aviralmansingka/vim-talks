@@ -1,7 +1,6 @@
 apt-get update
 apt-get upgrade
-apt-get install python-pip
+apt-get install python-pip ctags
 pip install flake8
-echo "source ~/vim-talks/scripts.sh" >> ~/.bashrc
-source ~/.bashrc
+source ~/vim-talks/scripts.sh
 mv .tmux.conf ~/
